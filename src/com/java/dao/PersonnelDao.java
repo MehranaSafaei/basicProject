@@ -69,9 +69,9 @@ public class PersonnelDao {
             preparedStatement.setString(1, personnel.getUsername());
             preparedStatement.setString(2, personnel.getMobile());
             preparedStatement.setString(3, personnel.getEmail());
-            preparedStatement.setLong(4, personnel.getPersonnelCode()); // باید personnelCode مقداردهی شده باشد.
+            preparedStatement.setLong(4, personnel.getPersonnelCode());
 
-            int rowsUpdated = preparedStatement.executeUpdate(); // متد executeUpdate را اضافه کنید
+            int rowsUpdated = preparedStatement.executeUpdate();
 
             if (rowsUpdated > 0) {
                 System.out.println("Personnel updated successfully.");
