@@ -1,7 +1,6 @@
 package com.java.entity;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Leave {
 
@@ -18,16 +17,16 @@ public class Leave {
         this.id = id;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
+    public LocalDate getStartDate(LocalDate startDate) {
+        return this.startDate;
     }
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
-        return endDate;
+    public LocalDate getEndDate(LocalDate endDate) {
+        return this.endDate;
     }
 
     public void setEndDate(LocalDate endDate) {

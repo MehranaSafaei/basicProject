@@ -7,21 +7,25 @@ import com.java.entity.Personnel;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class LeaveService {
 
     private final LeaveDao leaveDAO = new LeaveDao();
     private final PersonnelDao personnelDao = new PersonnelDao();
 
+    public LeaveService() throws SQLException, ClassNotFoundException {
+    }
 
-    public void saveLeave(Leave leave, Personnel personnel) {
+
+    public void saveLeave(Leave leave, Optional<Personnel> personnel) {
         leaveDAO.addLeave(leave, personnel);
     }
 
-    public List<Leave> getAllLeaves() {
-        List<Leave> leaveList = leaveDAO.findAllLeaves();
-        for (Leave leave : leaveList) {
-            System.out.println(leaveList);
+    public List<Leave> getAllLeaves() throws SQLException {
+        List<Leave> leaveList = leaveDAO.getAllLeaves();
+        for (Leave leave: leaveList){
+            System.out.println(leave);
         }
         return leaveList;
     }

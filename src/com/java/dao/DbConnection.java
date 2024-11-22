@@ -6,14 +6,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class DbConnection {
 
     private List<Connection> connections = new ArrayList<Connection>();
     private String URL = "jdbc:mysql://localhost:3306/mydb";
     private String USER = "root";
     private String PASSWORD = "Aa@123456";
-    private int INITIAL_POOL_SIZE = 10;
+    private int INITIAL_POOL_SIZE = 5;
 
     public DbConnection() {
         try {
@@ -43,24 +42,22 @@ public class DbConnection {
         }
     }
 
-//    public synchronized void releaseConnection(Connection connection) {
-//        if (connection != null) {
-//            connections.add(connection);
-//        }
-//    }
-//
-//    public void closeAllConnections() {
-//        for (Connection connection : connections) {
-//            try {
-//                if (connection != null && !connection.isClosed()) {
-//                    connection.close();
-//                }
-//            } catch (SQLException e) {
-//                System.out.println("Error closing connection: " + e.getMessage());
-//            }
-//        }
-//        connections.clear();
-//    }
+    public synchronized void releaseConnection(Connection connection) {
+        if (connection != null) {
+            connections.add(connection);
+        }
+    }
 
-
+    public void closeAllConnections() {
+        for (Connection connection : connections) {
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error closing connection: " + e.getMessage());
+            }
+        }
+        connections.clear();
+    }
 }

@@ -2,32 +2,36 @@ package com.java.service;
 
 import com.java.dao.PersonnelDao;
 import com.java.entity.Personnel;
-import com.java.utils.DataStore;
 
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class PersonnelService {
 
     private PersonnelDao personnelDao = new PersonnelDao();
 
-    public void save(Personnel personnel) {
-        personnelDao.add(personnel);
+    public PersonnelService() throws SQLException, ClassNotFoundException {
     }
 
-    public List<Personnel> getAllPersonnel() {
-        List<Personnel> personnelList = personnelDao.findAllPersonnel();
+    public void save(Personnel personnel) throws SQLException {
+        personnelDao.insert(personnel);
+    }
+
+    public List<Personnel> getAllPersonnel() throws SQLException {
+        List<Personnel> personnelList = personnelDao.getAll();
         for (Personnel p : personnelList) {
             System.out.println(p);
         }
         return personnelList;
     }
-    public Personnel updatePersonnel(Personnel personnel) {
+    public Personnel updatePersonnel(Personnel personnel) throws SQLException {
         return personnelDao.update(personnel);
     }
 
 
-    public Personnel getPersonnelCode(Long personnelCode) {
+    public Optional<Personnel> getPersonnelCode(Long personnelCode) {
         return personnelDao.findByPersonnelCode(personnelCode);
     }
 }

@@ -6,45 +6,65 @@ import com.java.utils.DataStore;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class PersonnelDao {
+public class PersonnelDao extends ConnectDao<Personnel> {
 
+    // SQL queries
+    private static final String INSERT = "INSERT INTO personnel (personnelCode, username, mobile, email) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE personnel SET username = ?, mobile = ?, email = ? WHERE id = ?";
+    private static final String DELETE = "DELETE FROM personnel WHERE id = ?";
+    private static final String SELECT_ALL = "SELECT * FROM personnel";
+    private static final String SELECT_BY_ID = "SELECT * FROM personnel WHERE id = ?";
+    private static final String SELECT_BY_PERSONNEL_CODE = "SELECT * FROM personnel WHERE personnelCode = ?";
 
-    private DbConnection dbConnection = new DbConnection();
+    public PersonnelDao() throws ClassNotFoundException, SQLException {
+    }
 
-    public void add(Personnel personnel) {
-        String INSERT = "INSERT INTO personnel (personnelCode, username, mobile, email) VALUES (?, ?, ?, ?)";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    @Override
+    public Optional<Personnel> insert(Personnel entity) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setLong(1, entity.getPersonnelCode());
+            statement.setString(2, entity.getUsername());
+            statement.setString(3, entity.getMobile());
+            statement.setString(4, entity.getEmail());
+            statement.executeUpdate();
 
-            preparedStatement.setLong(1, personnel.getPersonnelCode());
-            preparedStatement.setString(2, personnel.getUsername());
-            preparedStatement.setString(3, personnel.getMobile());
-            preparedStatement.setString(4, personnel.getEmail());
-
-            preparedStatement.executeUpdate();
-
-            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                personnel.setId(generatedKeys.getLong(1));
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    entity.setId(generatedKeys.getLong(1));
+                    return Optional.of(entity);
+                }
             }
+        }
+        return Optional.empty();
+    }
 
-            System.out.println("Personnel added successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
+    @Override
+    public Personnel update(Personnel entity) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(UPDATE)) {
+            statement.setString(1, entity.getUsername());
+            statement.setString(2, entity.getMobile());
+            statement.setString(3, entity.getEmail());
+            statement.setLong(4, entity.getId());
+            statement.executeUpdate();
+            return entity;
         }
     }
 
+    @Override
+    public void delete(long id) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(DELETE)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        }
+    }
 
-
-    public List<Personnel> findAllPersonnel() {
-        String SELECT_ALL = "SELECT * FROM personnel";
+    @Override
+    public List<Personnel> getAll() throws SQLException {
         List<Personnel> personnelList = new ArrayList<>();
-
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
+             ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 Personnel personnel = new Personnel();
                 personnel.setId(resultSet.getLong("id"));
@@ -54,70 +74,138 @@ public class PersonnelDao {
                 personnel.setEmail(resultSet.getString("email"));
                 personnelList.add(personnel);
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
         return personnelList;
     }
 
-    public Personnel update(Personnel personnel) {
-        String UPDATE = "UPDATE personnel SET username = ?, mobile = ?, email = ? WHERE personnelCode = ?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
-            preparedStatement.setString(1, personnel.getUsername());
-            preparedStatement.setString(2, personnel.getMobile());
-            preparedStatement.setString(3, personnel.getEmail());
-            preparedStatement.setLong(4, personnel.getPersonnelCode());
-
-            int rowsUpdated = preparedStatement.executeUpdate();
-
-            if (rowsUpdated > 0) {
-                System.out.println("Personnel updated successfully.");
-            } else {
-                System.out.println("No personnel found with the given personnelCode.");
+    @Override
+    public Optional<Personnel> getById(long id) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID)) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    Personnel personnel = new Personnel();
+                    personnel.setId(resultSet.getLong("id"));
+                    personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
+                    personnel.setUsername(resultSet.getString("username"));
+                    personnel.setMobile(resultSet.getString("mobile"));
+                    personnel.setEmail(resultSet.getString("email"));
+                    return Optional.of(personnel);
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return personnel;
+        return Optional.empty();
     }
-
-
-    public Personnel findByPersonnelCode(Long personnelCode) {
-        String sql = "SELECT id,username,mobile,email,personnelCode FROM personnel WHERE personnelCode = ?";
+    public Optional<Personnel> findByPersonnelCode(Long personnelCode) {
         Personnel personnel = null;
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_PERSONNEL_CODE)) {
 
             preparedStatement.setLong(1, personnelCode);
-
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 personnel = new Personnel();
-                personnel.setId(resultSet.getLong(1));
-                personnel.setUsername(resultSet.getString(2));
-                personnel.setMobile(resultSet.getString(3));
-                personnel.setEmail(resultSet.getString(4));
-                personnel.setPersonnelCode(resultSet.getLong(5));
+                personnel.setId(resultSet.getLong("id"));
+                personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
+                personnel.setUsername(resultSet.getString("username"));
+                personnel.setMobile(resultSet.getString("mobile"));
+                personnel.setEmail(resultSet.getString("email"));
             }
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // Logging the exception
         }
 
-        return personnel;
+        return Optional.ofNullable(personnel);  // Return Optional directly
     }
-//
-//        public Personnel findByPersonnelCode(Long personnelCode) {
-//            return null;
-//        }
 
-//        public Personnel findByPersonnelCode(long personnelCode) {
-//            return dataStore.findByPersonnelCode(personnelCode);
-//        }
+
+    //    private final DbConnection dbConnection = new DbConnection();
+    //    private final LeaveDao leaveDao = new LeaveDao();
+    //
+    //    public void add(Personnel personnel) {
+    //        String INSERT = "INSERT INTO personnel (personnelCode, username, mobile, email) VALUES (?, ?, ?, ?)";
+    //        try (Connection connection = dbConnection.getConnection();
+    //             PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+    //
+    //            preparedStatement.setLong(1, personnel.getPersonnelCode());
+    //            preparedStatement.setString(2, personnel.getUsername());
+    //            preparedStatement.setString(3, personnel.getMobile());
+    //            preparedStatement.setString(4, personnel.getEmail());
+    //
+    //            preparedStatement.executeUpdate();
+    //
+    //            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+    //            if (generatedKeys.next()) {
+    //                personnel.setId(generatedKeys.getLong(1));
+    //            }
+    //
+    //            System.out.println("Personnel added successfully.");
+    //        } catch (SQLException e) {
+    //            e.printStackTrace();
+    //        }
+    //    }
+    //
+    //
+    //
+    //    public List<Personnel> findAllPersonnel() {
+    //        String SELECT_ALL = "SELECT * FROM personnel";
+    //        List<Personnel> personnelList = new ArrayList<>();
+    //
+    //        try (Connection connection = dbConnection.getConnection();
+    //             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL);
+    //             ResultSet resultSet = preparedStatement.executeQuery()) {
+    //
+    //            while (resultSet.next()) {
+    //                Personnel personnel = new Personnel();
+    //                personnel.setId(resultSet.getLong("id"));
+    //                personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
+    //                personnel.setUsername(resultSet.getString("username"));
+    //                personnel.setMobile(resultSet.getString("mobile"));
+    //                personnel.setEmail(resultSet.getString("email"));
+    ////                personnel.getLeaveList(leaveDao.getAllLeave());
+    //                personnelList.add(personnel);
+    //            }
+    //
+    //        } catch (SQLException e) {
+    //            e.printStackTrace();
+    //        }
+    //
+    //        return personnelList;
+    //    }
+    //
+    //    public Personnel update(Personnel personnel) {
+    //        String UPDATE = "UPDATE personnel SET username = ?, mobile = ?, email = ? WHERE personnelCode = ?";
+    //        try (Connection connection = dbConnection.getConnection();
+    //             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE)) {
+    //            preparedStatement.setString(1, personnel.getUsername());
+    //            preparedStatement.setString(2, personnel.getMobile());
+    //            preparedStatement.setString(3, personnel.getEmail());
+    //            preparedStatement.setLong(4, personnel.getPersonnelCode());
+    //
+    //            int rowsUpdated = preparedStatement.executeUpdate();
+    //
+    //            if (rowsUpdated > 0) {
+    //                System.out.println("Personnel updated successfully.");
+    //            } else {
+    //                System.out.println("No personnel found with the given personnelCode.");
+    //            }
+    //        } catch (SQLException e) {
+    //            e.printStackTrace();
+    //        }
+    //        return personnel;
+    //    }
+    //
+    //
+
+    //
+    //        public Personnel findByPersonnelCode(Long personnelCode) {
+    //            return null;
+    //        }
+
+    //        public Personnel findByPersonnelCode(long personnelCode) {
+    //            return dataStore.findByPersonnelCode(personnelCode);
+    //        }
 
 
     //    public Personnel findByUserName(String userName) {
