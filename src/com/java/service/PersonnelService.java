@@ -34,4 +34,8 @@ public class PersonnelService {
     public Optional<Personnel> getPersonnelCode(Long personnelCode) {
         return personnelDao.findByPersonnelCode(personnelCode);
     }
+
+    public List<String> getCartesianProductPersonnelLeave() throws SQLException {
+        return personnelDao.getCartesianProductPersonnelLeave();
+    }
 }

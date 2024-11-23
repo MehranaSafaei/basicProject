@@ -18,7 +18,7 @@ public class LeaveService {
     }
 
 
-    public void saveLeave(Leave leave, Optional<Personnel> personnel) {
+    public void saveLeave(Leave leave, Optional<Personnel> personnel) throws SQLException {
         leaveDAO.addLeave(leave, personnel);
     }
 

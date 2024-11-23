@@ -113,8 +113,16 @@ public class Main {
                             System.out.println(leave);
                         }
                         break;
+                    case 6:
+                        // Show Cartesian Product
+                        System.out.println("Cartesian Product of Personnel and Leaves:");
+                        List<String> cartesianProduct = personnelService.getCartesianProductPersonnelLeave();
+                        for (String pair : cartesianProduct) {
+                            System.out.println(pair);
+                        }
+                        break;
 
-                    case 6: // Exit
+                    case 7: // Exit
                         System.out.println("Exiting program.");
                         scanner.close();
                         System.exit(0);
@@ -138,7 +146,8 @@ public class Main {
                 3. Update Personnel   
                 4. Add Leave  
                 5. Show Leaves  
-                6. Exit  
+                6. Show Cartesian Product
+                7. Exit  
                 """);
     }
 }

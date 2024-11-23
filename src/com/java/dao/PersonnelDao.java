@@ -1,7 +1,6 @@
 package com.java.dao;
 
 import com.java.entity.Personnel;
-import com.java.utils.DataStore;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,9 +15,12 @@ public class PersonnelDao extends ConnectDao<Personnel> {
     private static final String DELETE = "DELETE FROM personnel WHERE id = ?";
     private static final String SELECT_ALL = "SELECT * FROM personnel";
     private static final String SELECT_BY_ID = "SELECT * FROM personnel WHERE id = ?";
+    private static final String SELECT_BY_CARTESIAN = "SELECT p.username, l.startDate, l.endDate " +
+            "FROM personnel as p CROSS JOIN leaves as l";
     private static final String SELECT_BY_PERSONNEL_CODE = "SELECT * FROM personnel WHERE personnelCode = ?";
 
     public PersonnelDao() throws ClassNotFoundException, SQLException {
+        super();
     }
 
     @Override
@@ -39,6 +41,23 @@ public class PersonnelDao extends ConnectDao<Personnel> {
         }
         return Optional.empty();
     }
+
+    @Override
+    public List<String> getCartesianProductPersonnelLeave() throws SQLException {
+        List<String> result = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_BY_CARTESIAN);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                String personnelLeavePair = String.format("Personnel: %s, Leave: %s to %s",
+                        resultSet.getString("username"),
+                        resultSet.getDate("startDate"),
+                        resultSet.getDate("endDate"));
+                result.add(personnelLeavePair);
+            }
+        }
+        return result;
+    }
+
 
     @Override
     public Personnel update(Personnel entity) throws SQLException {

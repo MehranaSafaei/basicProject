@@ -17,7 +17,7 @@ public class Leave {
         this.id = id;
     }
 
-    public LocalDate getStartDate(LocalDate startDate) {
+    public LocalDate getStartDate() {
         return this.startDate;
     }
 
@@ -25,7 +25,7 @@ public class Leave {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate(LocalDate endDate) {
+    public LocalDate getEndDate() {
         return this.endDate;
     }
 

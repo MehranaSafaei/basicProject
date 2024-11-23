@@ -10,51 +10,44 @@ import java.util.Optional;
 
 public class LeaveDao extends ConnectDao<Leave> {
 
-    // Update column names based on actual database schema
-    private static final String INSERT = "INSERT INTO `leave` (startDate, endDate, personelId) VALUES (?, ?, ?)";
-    private static final String SELECT_ALL = "SELECT * FROM `leave`";
-    private static final String SELECT_BY_PERSONNEL = "SELECT * FROM `leave` WHERE personelId = ?"; // Check if 'personnelId' is correct
+    // SQL queries
+    private static final String INSERT = "INSERT INTO leaves (startDate, endDate, personnelId) VALUES (?, ?, ?)";
+    private static final String SELECT_ALL = "SELECT * FROM leaves";
+    private static final String SELECT_BY_PERSONNEL = "SELECT * FROM leaves WHERE personnelId = ?";
 
     public LeaveDao() throws ClassNotFoundException, SQLException {
-        // Initialize connection or any setup
+        super();
     }
 
-    public void addLeave(Leave leave, Optional<Personnel> personnel) {
+    public void addLeave(Leave leave, Optional<Personnel> personnel) throws SQLException {
+        if (personnel.isEmpty()) {
+            throw new IllegalArgumentException("Personnel cannot be null.");
+        }
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setDate(1, Date.valueOf(leave.getStartDate(resultSet.getDate("startDate"))));
-            preparedStatement.setDate(2, Date.valueOf(leave.getEndDate(resultSet.getDate("endDate"))));
-            // Ensure personnel is present and safely get its id
-            personnel.ifPresent(p -> {
-                try {
-                    preparedStatement.setLong(3, p.getId());
-                    preparedStatement.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
+            preparedStatement.setDate(1, Date.valueOf(leave.getStartDate()));
+            preparedStatement.setDate(2, Date.valueOf(leave.getEndDate()));
+            preparedStatement.setLong(3, personnel.get().getId());
+            preparedStatement.executeUpdate();
         }
     }
 
-    public List<Leave> getAllLeaves() {
+    public List<Leave> getAllLeaves() throws SQLException {
         List<Leave> leaveList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 Leave leave = new Leave();
-                leave.getStartDate(resultSet.getDate("startDate").toLocalDate());
-                leave.getEndDate(resultSet.getDate("endDate").toLocalDate());
+                leave.setStartDate(resultSet.getDate("startDate").toLocalDate());
+                leave.setEndDate(resultSet.getDate("endDate").toLocalDate());
                 leave.setPersonnelId(resultSet.getLong("personnelId"));
                 leaveList.add(leave);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return leaveList;
     }
 
-    public List<Leave> findListLeaveOfPersonnel(Personnel personnel) {
+    public List<Leave> findListLeaveOfPersonnel(Personnel personnel) throws SQLException {
         List<Leave> leaveList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_PERSONNEL)) {
             preparedStatement.setLong(1, personnel.getId());
@@ -63,31 +56,34 @@ public class LeaveDao extends ConnectDao<Leave> {
                     Leave leave = new Leave();
                     leave.setStartDate(resultSet.getDate("startDate").toLocalDate());
                     leave.setEndDate(resultSet.getDate("endDate").toLocalDate());
-                    leave.setPersonnelId(resultSet.getLong("personnelId")); // Ensure this matches exactly
+                    leave.setPersonnelId(resultSet.getLong("personnelId"));
                     leaveList.add(leave);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return leaveList;
     }
 
     @Override
-    public Optional<Leave> insert(Leave entity) throws SQLException {
-        // Implement your insert logic based on your requirements
+    public Optional<Leave> insert(Leave entity) {
+        // Not implemented
         return Optional.empty();
     }
 
     @Override
-    public Leave update(Leave entity) throws SQLException {
-        // Implement your update logic based on your requirements
+    public List<String> getCartesianProductPersonnelLeave() throws SQLException {
+        return List.of();
+    }
+
+    @Override
+    public Leave update(Leave entity) {
+        // Not implemented
         return null;
     }
 
     @Override
-    public void delete(long id) throws SQLException {
-        // Implement your delete logic based on your requirements
+    public void delete(long id) {
+        // Not implemented
     }
 
     @Override
@@ -96,8 +92,8 @@ public class LeaveDao extends ConnectDao<Leave> {
     }
 
     @Override
-    public Optional<Leave> getById(long id) throws SQLException {
-        // Implement a method to find a leave by its ID if needed
+    public Optional<Leave> getById(long id) {
+        // Not implemented
         return Optional.empty();
     }
 }
