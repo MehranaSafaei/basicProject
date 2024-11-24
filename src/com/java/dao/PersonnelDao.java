@@ -15,8 +15,8 @@ public class PersonnelDao extends ConnectDao<Personnel> {
     private static final String DELETE = "DELETE FROM personnel WHERE id = ?";
     private static final String SELECT_ALL = "SELECT * FROM personnel";
     private static final String SELECT_BY_ID = "SELECT * FROM personnel WHERE id = ?";
-    private static final String SELECT_BY_CARTESIAN = "SELECT p.username, l.startDate, l.endDate " +
-            "FROM personnel as p CROSS JOIN leaves as l";
+    private static final String SELECT_BY_USERNAME = "SELECT * FROM personnel WHERE username = ?";
+    private static final String SELECT_BY_CARTESIAN = "SELECT p.username, l.startDate, l.endDate FROM personnel as p CROSS JOIN leaves as l";
     private static final String SELECT_BY_PERSONNEL_CODE = "SELECT * FROM personnel WHERE personnelCode = ?";
 
     public PersonnelDao() throws ClassNotFoundException, SQLException {
@@ -44,6 +44,34 @@ public class PersonnelDao extends ConnectDao<Personnel> {
 
     @Override
     public List<String> getCartesianProductPersonnelLeave() throws SQLException {
+        return List.of();
+    }
+
+    public Optional<Personnel> findPersonnelByUsername(String username) throws SQLException {
+        Personnel personnel = null;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_USERNAME)) {
+
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                personnel = new Personnel();
+                personnel.setId(resultSet.getLong("id"));
+                personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
+                personnel.setUsername(resultSet.getString("username"));
+                personnel.setMobile(resultSet.getString("mobile"));
+                personnel.setEmail(resultSet.getString("email"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.ofNullable(personnel);
+    }
+
+    @Override
+    public List<String> findCartesianProductPersonnelLeave() throws SQLException {
         List<String> result = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(SELECT_BY_CARTESIAN);
              ResultSet resultSet = statement.executeQuery()) {
@@ -230,6 +258,25 @@ public class PersonnelDao extends ConnectDao<Personnel> {
     //    public Personnel findByUserName(String userName) {
     //        return dataStore.findByUserName(userName);
     //    }
+ //   public Optional<Personnel> findByPersonnelByUsername(String username) throws SQLException {
+//        try (PreparedStatement statement = connection.prepareStatement(SELECT_BY_USERNAME)) {
+//            statement.setString(1, username);
+//            try (ResultSet resultSet = statement.executeQuery()) {
+//                if (resultSet.next()) {
+//                    Personnel personnel = new Personnel();
+//                    personnel.setId(resultSet.getLong("id"));
+//                    personnel.setUsername(resultSet.getString("username"));
+//                    personnel.setMobile(resultSet.getString("mobile"));
+//                    personnel.setEmail(resultSet.getString("email"));
+//                    personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
+//                    return Optional.of(personnel);
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return Optional.empty();
+//    }
 
 
 }

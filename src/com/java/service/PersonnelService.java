@@ -36,6 +36,6 @@ public class PersonnelService {
     }
 
     public List<String> getCartesianProductPersonnelLeave() throws SQLException {
-        return personnelDao.getCartesianProductPersonnelLeave();
+        return personnelDao.findCartesianProductPersonnelLeave();
     }
 }

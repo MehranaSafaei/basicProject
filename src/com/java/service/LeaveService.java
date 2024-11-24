@@ -6,6 +6,7 @@ import com.java.entity.Leave;
 import com.java.entity.Personnel;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,16 @@ public class LeaveService {
     public void saveLeave(Leave leave, Optional<Personnel> personnel) throws SQLException {
         leaveDAO.addLeave(leave, personnel);
     }
+    public List<Leave> getLeavesByUsername(String username) throws SQLException {
+        Optional<Personnel> personnel = personnelDao.findPersonnelByUsername(username);
+        if (personnel.isPresent()) {
+            return leaveDAO.findListLeaveOfPersonnel(personnel.get());
+        } else {
+            System.out.println("No personnel found with username: " + username);
+            return new ArrayList<>();
+        }
+    }
+
 
     public List<Leave> getAllLeaves() throws SQLException {
         List<Leave> leaveList = leaveDAO.getAllLeaves();

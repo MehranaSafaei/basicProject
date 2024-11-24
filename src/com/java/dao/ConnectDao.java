@@ -19,6 +19,8 @@ public abstract class ConnectDao<T> {
 
     public abstract List<String> getCartesianProductPersonnelLeave() throws SQLException;
 
+    public abstract List<String> findCartesianProductPersonnelLeave() throws SQLException;
+
     public abstract T update(T entity) throws SQLException;
 
     public abstract void delete(long id) throws SQLException;

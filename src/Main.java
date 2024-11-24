@@ -85,10 +85,10 @@ public class Main {
                         }
                         break;
 
-                    case 4: // Add Leave
+                    case 4:
                         System.out.println("Enter personnelCode: ");
                         long personnelCodeForLeave = scanner.nextLong();
-                        scanner.nextLine(); // Consume newline
+                        scanner.nextLine();
 
                         Optional<Personnel> foundPersonnel = personnelService.getPersonnelCode(personnelCodeForLeave);
                         if (foundPersonnel.isPresent()) {
@@ -106,7 +106,7 @@ public class Main {
                         }
                         break;
 
-                    case 5: // Show Leaves
+                    case 5:
                         System.out.println("List of leave: ");
                         List<Leave> leaveList = leaveService.getAllLeaves();
                         for (Leave leave : leaveList) {
@@ -114,7 +114,6 @@ public class Main {
                         }
                         break;
                     case 6:
-                        // Show Cartesian Product
                         System.out.println("Cartesian Product of Personnel and Leaves:");
                         List<String> cartesianProduct = personnelService.getCartesianProductPersonnelLeave();
                         for (String pair : cartesianProduct) {
@@ -122,15 +121,26 @@ public class Main {
                         }
                         break;
 
-                    case 7: // Exit
+                    case 7:
+                        System.out.println("enter your username");
+                        String username = scanner.nextLine();
+
+                        List<Leave> leaveByPersonnel = leaveService.getLeavesByUsername(username);
+                        for (Leave leave : leaveByPersonnel) {
+                            System.out.println(leave);
+                        }
+                        break;
+                    case 8: // Exit
                         System.out.println("Exiting program.");
                         scanner.close();
                         System.exit(0);
                         break;
 
+
                     default:
                         System.out.println("Invalid choice. Please try again ...");
                         break;
+
                 }
             } catch (Exception e) {
                 System.out.println("An error occurred: " + e.getMessage());
@@ -147,7 +157,8 @@ public class Main {
                 4. Add Leave  
                 5. Show Leaves  
                 6. Show Cartesian Product
-                7. Exit  
+                7. find List Leave by Username
+                8. Exit program
                 """);
     }
 }
