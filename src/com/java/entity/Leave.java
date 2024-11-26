@@ -8,6 +8,7 @@ public class Leave {
     private LocalDate startDate;
     private LocalDate endDate;
     private Long personnelId;
+    private Personnel personnel;
 
     public int getId() {
         return id;
@@ -37,6 +38,14 @@ public class Leave {
         return personnelId;
     }
 
+    public Personnel getPersonnel() {
+        return personnel;
+    }
+
+    public void setPersonnel(Personnel personnel) {
+        this.personnel = personnel;
+    }
+
     public void setPersonnelId(Long personnelId) {
         this.personnelId = personnelId;
     }
@@ -47,7 +56,8 @@ public class Leave {
                 "id=" + id +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", personnel=" + personnelId +
+                ", personnelId=" + personnelId +
+                ", personnel=" + (personnel != null ? personnel.getUsername() : "null") +
                 '}';
     }
 }

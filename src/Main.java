@@ -122,12 +122,18 @@ public class Main {
                         break;
 
                     case 7:
-                        System.out.println("enter your username");
+                        System.out.println("Enter your username:");
                         String username = scanner.nextLine();
 
                         List<Leave> leaveByPersonnel = leaveService.getLeavesByUsername(username);
-                        for (Leave leave : leaveByPersonnel) {
-                            System.out.println(leave);
+
+                        if (leaveByPersonnel.isEmpty()) {
+                            System.out.println("No leaves found for username: " + username);
+                        } else {
+                            System.out.println("Number of leaves found: " + leaveByPersonnel.size());
+                            for (Leave leave : leaveByPersonnel) {
+                                System.out.println("Leave: " + leave);
+                            }
                         }
                         break;
                     case 8: // Exit

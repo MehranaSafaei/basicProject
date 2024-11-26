@@ -53,15 +53,19 @@ public class PersonnelDao extends ConnectDao<Personnel> {
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_USERNAME)) {
 
             preparedStatement.setString(1, username);
+
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 personnel = new Personnel();
                 personnel.setId(resultSet.getLong("id"));
-                personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
                 personnel.setUsername(resultSet.getString("username"));
                 personnel.setMobile(resultSet.getString("mobile"));
                 personnel.setEmail(resultSet.getString("email"));
+                personnel.setPersonnelCode(resultSet.getLong("personnelCode"));
+                System.out.println("Personnel found: " + personnel.getUsername()); // for log
+            } else {
+                System.out.println("No personnel found with username: " + username); // log for not found personnel
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,6 +73,7 @@ public class PersonnelDao extends ConnectDao<Personnel> {
 
         return Optional.ofNullable(personnel);
     }
+
 
     @Override
     public List<String> findCartesianProductPersonnelLeave() throws SQLException {

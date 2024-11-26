@@ -13,10 +13,10 @@
         // SQL queries
         private static final String INSERT = "INSERT INTO leaves (startDate, endDate, personelId) VALUES (?, ?, ?)";
         private static final String SELECT_ALL = "SELECT * FROM leaves";
-        private static final String SELECT_BY_PERSONNEL = "SELECT l.startDate, l.endDate, l.personelId \n" +
+        private static final String SELECT_BY_USERNAME = "SELECT l.startDate, l.endDate, p.username \n" +
                 "FROM leaves l \n" +
                 "JOIN personnel p ON l.personelId = p.id \n" +
-                "WHERE p.username = ?\n";
+                "WHERE p.username = ?";
 
         public LeaveDao() throws ClassNotFoundException, SQLException {
             super();
@@ -54,20 +54,27 @@
 
         public List<Leave> findListLeaveOfPersonnel(Personnel personnel) throws SQLException {
             List<Leave> leaveList = new ArrayList<>();
-            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_PERSONNEL)) {
-                preparedStatement.setString(1,personnel.getUsername());
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_USERNAME)) {
+                preparedStatement.setString(1, personnel.getUsername());
+
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
                         Leave leave = new Leave();
                         leave.setStartDate(resultSet.getDate("startDate").toLocalDate());
                         leave.setEndDate(resultSet.getDate("endDate").toLocalDate());
-                        leave.setPersonnelId(resultSet.getLong("personelId"));
+                        leave.setPersonnel(personnel); // تنظیم Personnel برای Leave
                         leaveList.add(leave);
                     }
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+
             return leaveList;
         }
+
+
 
         @Override
         public Optional<Leave> insert(Leave entity) {
